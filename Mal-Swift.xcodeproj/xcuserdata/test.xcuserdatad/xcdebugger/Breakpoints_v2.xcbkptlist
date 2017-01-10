@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Mal-Swift/Parser.swift"
-            timestampString = "505781760.410636"
+            timestampString = "505782956.170895"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
             landmarkName = "parserHighPriority()"
             landmarkType = "7">
          </BreakpointContent>

@@ -94,6 +94,7 @@ public class Parser {
         }
     }
     
+    /* parses and calcualtes numbers, x, parenthesis, trig functions */
     private func parserHighPriority() -> [Float64] {
         
         print("entering high priority")
@@ -153,6 +154,7 @@ public class Parser {
         return resultList
     }
     
+    /* parses and calculates with * */
     private func parserMedPriority() -> [Float64]{
         
         var highPrioLeft: [Float64] = parserHighPriority()
@@ -168,6 +170,7 @@ public class Parser {
         return highPrioLeft
     }
     
+    /* parses and calcualtes with + */
     private func parserLowPriority() -> [Float64]{
         
         var medPrioLeft: [Float64] = parserMedPriority()
@@ -184,17 +187,21 @@ public class Parser {
         return medPrioLeft
     }
     
+    /* simplifies mathematical function. Calls itself recursively to solve sub-expressions */
     private func parserExpression() -> [Float64]{
         
         return parserLowPriority()
     }
     
+    /* takes range via int start and int end. creates totalsteps entries in self.range 
+       that corrospond to function output. */
     public func parserPlot(start: Float64, end: Float64, totalSteps: Int){
 
         parserGenDomain(start: start, end: end, steps: totalSteps)
         self.range = parserExpression()
     }
     
+    /* generates array of x values for function given start end and number of steps */
     public func parserGenDomain(start: Float64, end: Float64, steps: Int){
         
         var domainArray: [Float64] = Array()
@@ -208,9 +215,12 @@ public class Parser {
         self.domain = domainArray
     }
     
+    /* gives caller all x values */
     public func getX() -> [Float64]{
         return self.domain
     }
+    
+    /* gives caller all y values */
     public func getY() -> [Float64]{
         return self.range
     }
