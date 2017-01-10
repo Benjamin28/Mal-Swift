@@ -15,6 +15,11 @@ class ViewController: UIViewController {
         
         
         // Do any additional setup after loading the view, typically from a nib.
+        
+        var p: Parser = Parser(functionString: "2*x")
+        p.parserPlot(start: 0.0, end: 5.0, totalSteps: 1000)
+        print(p.getY())
+        
     }
 
     override func didReceiveMemoryWarning() {

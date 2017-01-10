@@ -11,29 +11,29 @@ import Foundation
 
 public class Parser {
     
+    private var numChars = "0123456789."
     private var function: Array<Any>
     private var cursor: Int
     private var domain: [Float64]
     private var range:  [Float64]
-    
     
     init(functionString: String) {
         self.function = Array(functionString.characters)
         self.cursor = 0
         self.domain = Array()
         self.range = Array()
+        
     }
     
     private func isNum() -> Bool{
-        
-        return CharacterSet.decimalDigits.contains(function[cursor] as! UnicodeScalar)
+        return numChars.contains(String(describing: function[cursor]))
     }
     
     private func parserGetNum() -> Float64{
         
         var s: String = ""
         var c: Int = self.cursor
-        while(CharacterSet.decimalDigits.contains(self.function[c] as! UnicodeScalar)){
+        while(numChars.contains(String(describing: self.function[c]))){
             s.append(String(describing: self.function[c]))
             c += 1
         }
@@ -49,6 +49,9 @@ public class Parser {
         }
         else{
             self.cursor += 1
+        }
+        if(self.cursor == function.count){
+            return
         }
         while(String(describing: function[cursor]) == " "){
             self.cursor += 1 
@@ -77,7 +80,6 @@ public class Parser {
             parserIncrimentCursor()
             return resultList
         }
-        
         return resultList
     }
     
@@ -85,14 +87,12 @@ public class Parser {
         
         var highPrioLeft: [Float64] = parserHighPriority()
         
-        while(String(describing: self.function[self.cursor]) == "*"){
-            
+        while(self.cursor < function.count && String(describing: self.function[self.cursor]) == "*"){
             parserIncrimentCursor()
             var highPrioRight: [Float64] = parserHighPriority()
             for i in 0..<self.domain.count{
                 
                 highPrioLeft[i] *= highPrioRight[i]
-                
             }
         }
         return highPrioLeft
@@ -102,7 +102,7 @@ public class Parser {
         
         var medPrioLeft: [Float64] = parserMedPriority()
         
-        while(String(describing: self.function[self.cursor]) == "+"){
+        while(self.cursor < function.count && String(describing: self.function[self.cursor]) == "+"){
             
             parserIncrimentCursor()
             var medPrioRight: [Float64] = parserMedPriority()
@@ -119,11 +119,30 @@ public class Parser {
         return parserLowPriority()
     }
     
-    public func parserPlot(xValues: [Float64]){
-        
-        self.domain = xValues
+    public func parserPlot(start: Float64, end: Float64, totalSteps: Int){
+
+        parserGenDomain(start: start, end: end, steps: totalSteps)
         self.range = parserExpression()
+    }
+    
+    public func parserGenDomain(start: Float64, end: Float64, steps: Int){
         
+        var domainArray: [Float64] = Array()
+        let stepSize: Float64 = (end-start)/Float64(steps)
+        var current: Float64 = start
+        
+        while(current<end){
+            domainArray.append(current)
+            current+=stepSize
+        }
+        self.domain = domainArray
+    }
+    
+    public func getX() -> [Float64]{
+        return self.domain
+    }
+    public func getY() -> [Float64]{
+        return self.range
     }
     
 }
