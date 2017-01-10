@@ -25,11 +25,35 @@ public class Parser {
         
     }
     
+    //can be optimized later
+    /* takes array of strings targArray, and makes a string combining elements
+     from position start to position stop. Compares to string comparedTo. Returns
+     true if comparison holds up.*/
+    private func getTrig() -> String {
+        if(cursor+3 < function.count){
+            print("made it to first bool")
+            
+            var s: String = ""
+            for i in self.cursor...self.cursor+2 {
+                s.append(String(describing: self.function[i]))
+            }
+            print(s)
+            if("sin" == s || "cos" == s || "tan" == s){
+                print("operator type is", s)
+                return s
+            }
+        }
+        return ""
+    }
+    
+    /* function[cursor] is currently pointing to string */
     private func isNum() -> Bool{
         return numChars.contains(String(describing: function[cursor]))
     }
     
-    private func parserGetNum() -> Float64{
+    /* obtains value of number starting at function[cursor]. Returns array of len domain.count
+      containing only this character */
+    private func parserGetNum() -> [Float64]{
         
         var s: String = ""
         var c: Int = self.cursor
@@ -37,22 +61,34 @@ public class Parser {
             s.append(String(describing: self.function[c]))
             c += 1
         }
-        return Float64(s)!
+        
+        var returnArray: [Float64] = Array()
+        let value: Float64 = Float64(s)!
+        for _ in 0..<self.domain.count {
+            returnArray.append(value)
+        }
+        return returnArray
     }
     
+    /* increments cursor. increments by number length if is num. by 4 if is sin. by 1 otherwise */
     private func parserIncrimentCursor(){
         
         if isNum(){
             while(isNum()){
                 self.cursor += 1
             }
-        }
-        else{
+            
+        }else if(getTrig() != ""){
+            self.cursor += 4
+            
+        }else{
             self.cursor += 1
+            
         }
         if(self.cursor == function.count){
             return
         }
+        
         while(String(describing: function[cursor]) == " "){
             self.cursor += 1 
         }
@@ -60,7 +96,10 @@ public class Parser {
     
     private func parserHighPriority() -> [Float64] {
         
+        print("entering high priority")
+        
         let indicator = String(describing: self.function[self.cursor])
+        print(indicator)
         var resultList: [Float64] = Array()
         
         if(indicator == "x" || indicator == "X"){
@@ -71,14 +110,45 @@ public class Parser {
             parserIncrimentCursor()
             return resultList
         }
-        if(isNum()){
-            
-            let n: Float64 = parserGetNum()
-            for _ in 0..<self.domain.count{
-                resultList.append(n)
+        if(indicator == "("){
+            parserIncrimentCursor()
+            resultList = parserExpression()
+            if(String(describing: self.function[self.cursor]) != ")"){
+                print("ERROR unmatched (")
             }
             parserIncrimentCursor()
             return resultList
+        }
+        if(isNum()){
+            
+            resultList = parserGetNum()
+
+            parserIncrimentCursor()
+            return resultList
+        }
+        let type: String = getTrig()
+        print(type)
+        if(type != ""){
+            parserIncrimentCursor()
+            resultList = parserExpression()
+            if(String(describing: self.function[self.cursor]) != ")"){
+                print("ERROR unmatched (")
+            }
+            parserIncrimentCursor()
+            if(type == "sin"){
+                for i in 0..<resultList.count {
+                    resultList[i] = sin(resultList[i])
+                }
+            }else if(type == "cos"){
+                for i in 0..<resultList.count {
+                    resultList[i] = cos(resultList[i])
+                }
+            }else if(type == "tan"){
+                for i in 0..<resultList.count {
+                    resultList[i] = tan(resultList[i])
+                }
+            }
+            
         }
         return resultList
     }
@@ -131,7 +201,7 @@ public class Parser {
         let stepSize: Float64 = (end-start)/Float64(steps)
         var current: Float64 = start
         
-        while(current<end){
+        while(current<=end){
             domainArray.append(current)
             current+=stepSize
         }
